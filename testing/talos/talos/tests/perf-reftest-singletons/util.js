@@ -82,11 +82,6 @@ function perf_finish() {
       type: "time",
       value: end - start,
     });
-  } else {
-    // Running standalone; just alert.
-    console.log(end);
-    console.log(start);
-    alert("Result: " + (end - start).toFixed(2) + " (ms)");
   }
 }
 

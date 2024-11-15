@@ -12,7 +12,7 @@ config = {
     "emulator_process_name": "qemu-system-x86_64",
     "emulator_extra_args": [
         "-gpu",
-        "on",
+        "host",
         "-skip-adb-auth",
         "-verbose",
         "-show-kernel",
@@ -20,16 +20,17 @@ config = {
         "-selinux",
         "permissive",
         "-memory",
-        "4096",
+        "32768",
         "-cores",
-        "4",
+        "12",
         "-skin",
-        "800x1280",
+        "1280x960",
         "-no-snapstorage",
         "-no-snapshot",
         # Disables first-run dialogs
         "-prop",
         "ro.test_harness=true",
+        "-qemu", "-cpu", "host", "-smp", "cores=12"
     ],
     "exes": {
         "adb": "%(abs_sdk_dir)s/platform-tools/adb",
