@@ -97,10 +97,6 @@ if __name__ == "__main__":
     locations = ServerLocations()
     locations.add_host(host="127.0.0.1", port=PORT, options="primary,privileged")
 
-    old_profraw_files = glob.glob("*.profraw")
-    for f in old_profraw_files:
-        os.remove(f)
-
     with TemporaryDirectory() as profilePath:
         # TODO: refactor this into mozprofile
         profile_data_dir = os.path.join(build.topsrcdir, "testing", "profiles")
@@ -179,6 +175,10 @@ if __name__ == "__main__":
             httpd.stop()
             get_crashreports(profilePath, name="Profile initialization")
             sys.exit(ret)
+
+        old_profraw_files = glob.glob("*.profraw")
+        for f in old_profraw_files:
+            os.remove(f)
 
         jarlog = os.getenv("JARLOG_FILE")
         if jarlog:
