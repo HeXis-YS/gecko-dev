@@ -274,8 +274,18 @@ target_rust_ltoable := force-cargo-library-build $(ADD_RUST_LTOABLE)
 target_rust_nonltoable := force-cargo-test-run force-cargo-program-build
 
 ifdef MOZ_PGO_RUST
+rust_pgo_flags :=
+ifdef MOZ_PROFILE_GENERATE_CS
+ifdef MOZ_PROFILE_GENERATE_CS_RUST
+rust_pgo_flags += -C llvm-args=--cs-profile-generate -C llvm-args=--cs-profile-path=$(topobjdir)
+ifeq (1,$(words $(filter 5.% 6.% 7.% 8.% 9.% 10.% 11.%,$(CC_VERSION) $(RUSTC_LLVM_VERSION))))
+rust_pgo_flags += -C llvm-args=--disable-vp=true
+endif
+rust_pgo_flags += $(patsubst -mllvm:%,-C llvm-args=%,$(filter -mllvm:%,$(subst -mllvm ,-mllvm:,$(PROFILE_GEN_CFLAGS))))
+endif
+else
 ifdef MOZ_PROFILE_GENERATE
-rust_pgo_flags := -C profile-generate=$(topobjdir)
+rust_pgo_flags += -C profile-generate=$(topobjdir)
 ifeq (1,$(words $(filter 5.% 6.% 7.% 8.% 9.% 10.% 11.%,$(CC_VERSION) $(RUSTC_LLVM_VERSION))))
 # Disable value profiling when:
 # (RUSTC_LLVM_VERSION < 12 and CC_VERSION >= 12) or (RUSTC_LLVM_VERSION >= 12 and CC_VERSION < 12)
@@ -286,8 +296,10 @@ endif
 # "-mllvm foo" into "-mllvm:foo" so that it becomes a unique argument, that we can then filter for,
 # excluding other flags, and then turn into the right string.
 rust_pgo_flags += $(patsubst -mllvm:%,-C llvm-args=%,$(filter -mllvm:%,$(subst -mllvm ,-mllvm:,$(PROFILE_GEN_CFLAGS))))
-else # MOZ_PROFILE_USE
-rust_pgo_flags := -C profile-use=$(PGO_PROFILE_PATH)
+endif
+endif
+ifdef MOZ_PROFILE_USE
+rust_pgo_flags += -C profile-use=$(PGO_PROFILE_PATH)
 endif
 endif
 
